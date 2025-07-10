@@ -1,0 +1,86 @@
+# Medical Test Records Management System Requirements
+
+## FRONTEND (React + TypeScript + Tailwind CSS)
+Directory: /frontend
+
+### Core Features:
+1. Landing Page
+   - Implement smooth scroll animations using Framer Motion
+   - Hero section with medical-themed video background from Pexels
+   - Features section with fade-in animations
+   - Authentication components (Sign in/Sign up/Password reset)
+   - ARIA-compliant accessible components
+   - Responsive navigation with mobile menu
+
+2. Patient Dashboard
+   - Protected routes with role-based authentication
+   - Summary cards with gradient overlays showing key metrics
+   - Interactive data visualization using Recharts/Chart.js
+   - Test record management interface with:
+     * Filterable data tables
+     * Time-series graphs
+     * Trend analysis charts
+     * CSV export functionality
+   - Add/Edit test records with categorized input forms
+   - Responsive grid layouts for all screen sizes
+
+3. Future Extensions
+   - Doctor portal (placeholder routes)
+   - Admin dashboard (placeholder routes)
+   - User management interface
+
+## BACKEND (FastAPI + PostgreSQL)
+Directory: /backend
+
+### API Features:
+1. Authentication
+   - JWT-based auth system
+   - Password hashing with bcrypt
+   - Refresh token rotation
+   - Password reset flow
+
+2. Core Endpoints
+   - CRUD operations for test records
+   - Data aggregation for visualizations
+   - User management
+   - Role-based access control
+
+3. Database
+   - Async PostgreSQL with SQLAlchemy
+   - Data validation with Pydantic
+   - Migration system with Alembic
+
+## DOCKER
+Root directory: docker-compose.yml
+- Frontend container (Node.js)
+- Backend container (Python)
+- PostgreSQL container
+- Nginx reverse proxy
+- Development and production configurations
+
+## Technical Requirements:
+- TypeScript strict mode
+- WCAG 2.1 AA compliance
+- Comprehensive test coverage
+- API documentation with Swagger
+- Error handling and logging
+- Security best practices
+- Performance optimization
+
+## Test Panels Supported:
+A. Complete Blood Count (CBC): RBC, HB, PLATELETS, WBC
+B. Kidney Function Test (KFT): POTASSIUM, UREA, CREATININE, eGFR
+C. Liver Function Test (LFT): ALT, AST, ALP, GGT, T-BIL, D-BIL, TOTAL PROTEIN, ALBUMIN
+D. Lipid Profile: T. CHOL, HDL, LDL, TRIG, NON-HDL CHOL
+E. Glucose Panel: GLUCOSE, HBA1C, INSULIN, LACTATE
+F. Iron Panel: IRON, TRANSFERRI, FERRITIN, IRON SATURATION
+G. Fluid: PROTEIN, GLUCOSE, LDH
+H. Cardiac Enzymes: CPK, AST, LDH, CKMB
+I. Tropinins: T. I, T. T
+J. Thyroid Function Test: TSH, T3, T4
+K. Urine Routine Examination: PROTEIN, BLOOD, BACTERIA, SG, GLUCOSE
+L. Basic Fertilities: FSH, LH, PROLACTIN, ESTROGEN, PROGESTERONE, AMH, TESTOSTERONE
+M. Electrolytes: SODIUM, POTASSIUM, CHLORIDE
+N. Semen Analysis: Sperm concentration, Motility, Sperm count, Viability
+O. ACR: Albumin, Creatinine, Ratio
+P. Urine Protein Creatinine Ratio: URINE CREATININE, URINE PROTEIN, RATIO
