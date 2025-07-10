@@ -4,6 +4,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 import uvicorn
+from sqlalchemy import text
 
 from database import get_db, init_db
 from models import User, TestRecord
@@ -12,8 +13,13 @@ from schemas import UserCreate, UserLogin, TestRecordCreate, TestRecordResponse
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize database
-    await init_db()
+    # Initialize database with retry mechanism
+    try:
+        await init_db()
+        print("✅ Database initialized successfully")
+    except Exception as e:
+        print(f"❌ Failed to initialize database: {e}")
+        raise
     yield
 
 app = FastAPI(
@@ -45,7 +51,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     try:
         # Check if user already exists
         existing_user = await db.execute(
-            "SELECT * FROM users WHERE email = :email",
+            text("SELECT * FROM users WHERE email = :email"),
             {"email": user_data.email}
         )
         if existing_user.fetchone():
@@ -83,6 +89,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
         }
         
     except Exception as e:
+        print(f"Registration error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/auth/login")
@@ -91,7 +98,7 @@ async def login(user_credentials: UserLogin, db: AsyncSession = Depends(get_db))
     try:
         # Find user by email
         result = await db.execute(
-            "SELECT * FROM users WHERE email = :email",
+            text("SELECT * FROM users WHERE email = :email"),
             {"email": user_credentials.email}
         )
         user_data = result.fetchone()
@@ -119,6 +126,7 @@ async def login(user_credentials: UserLogin, db: AsyncSession = Depends(get_db))
     except HTTPException:
         raise
     except Exception as e:
+        print(f"Login error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/auth/verify")
