@@ -17,6 +17,9 @@ class User(Base):
     last_name = Column(String, nullable=False)
     role = Column(String, default="patient")  # patient, doctor, admin
     is_active = Column(Boolean, default=True)
+    email_verified = Column(Boolean, default=False)
+    email_verification_code = Column(String, nullable=True)
+    email_verification_expires = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

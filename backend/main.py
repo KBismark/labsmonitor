@@ -9,7 +9,10 @@ from sqlalchemy import text
 from database import get_db, init_db
 from models import User, TestRecord
 from auth import get_current_user, create_access_token, verify_password, hash_password
-from schemas import UserCreate, UserLogin, TestRecordCreate, TestRecordResponse
+from schemas import UserCreate, UserLogin, TestRecordCreate, TestRecordResponse, EmailVerificationRequest, ResendVerificationRequest
+from email_service import send_verification_email
+import secrets
+from datetime import datetime, timedelta
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -60,6 +63,10 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
                 detail="Email already registered"
             )
         
+        # Generate verification code
+        verification_code = ''.join(secrets.choice('0123456789') for _ in range(6))
+        verification_expires = datetime.utcnow() + timedelta(minutes=10)
+        
         # Create new user
         hashed_password = hash_password(user_data.password)
         user = User(
@@ -67,25 +74,27 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
             hashed_password=hashed_password,
             first_name=user_data.firstName,
             last_name=user_data.lastName,
-            role="patient"
+            role="patient",
+            email_verified=False,
+            email_verification_code=verification_code,
+            email_verification_expires=verification_expires
         )
         
         db.add(user)
         await db.commit()
         await db.refresh(user)
         
-        # Create access token
-        access_token = create_access_token(data={"sub": user.email})
+        # Send verification email
+        try:
+            await send_verification_email(user_data.email, verification_code, user_data.firstName)
+        except Exception as email_error:
+            print(f"Email sending error: {email_error}")
+            # Continue with registration even if email fails
         
         return {
-            "token": access_token,
-            "user": {
-                "id": str(user.id),
-                "email": user.email,
-                "firstName": user.first_name,
-                "lastName": user.last_name,
-                "role": user.role
-            }
+            "message": "Registration successful. Please check your email for verification code.",
+            "email": user_data.email,
+            "requiresVerification": True
         }
         
     except Exception as e:
@@ -109,6 +118,13 @@ async def login(user_credentials: UserLogin, db: AsyncSession = Depends(get_db))
                 detail="Invalid credentials"
             )
         
+        # Check if email is verified
+        if not user_data.email_verified:
+            raise HTTPException(
+                status_code=403,
+                detail="Email not verified. Please verify your email before logging in."
+            )
+        
         # Create access token
         access_token = create_access_token(data={"sub": user_data.email})
         
@@ -119,7 +135,8 @@ async def login(user_credentials: UserLogin, db: AsyncSession = Depends(get_db))
                 "email": user_data.email,
                 "firstName": user_data.first_name,
                 "lastName": user_data.last_name,
-                "role": user_data.role
+                "role": user_data.role,
+                "emailVerified": user_data.email_verified
             }
         }
         
@@ -127,6 +144,145 @@ async def login(user_credentials: UserLogin, db: AsyncSession = Depends(get_db))
         raise
     except Exception as e:
         print(f"Login error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/auth/verify-email")
+async def verify_email(verification_data: EmailVerificationRequest, db: AsyncSession = Depends(get_db)):
+    """Verify user email with verification code"""
+    try:
+        # Find user by email
+        result = await db.execute(
+            text("SELECT * FROM users WHERE email = :email"),
+            {"email": verification_data.email}
+        )
+        user_data = result.fetchone()
+        
+        if not user_data:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+        
+        if user_data.email_verified:
+            raise HTTPException(
+                status_code=400,
+                detail="Email already verified"
+            )
+        
+        if user_data.email_verification_code != verification_data.code:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid verification code"
+            )
+        
+        if user_data.email_verification_expires < datetime.utcnow():
+            raise HTTPException(
+                status_code=400,
+                detail="Verification code has expired"
+            )
+        
+        # Update user to verified
+        await db.execute(
+            text("""
+                UPDATE users 
+                SET email_verified = true, 
+                    email_verification_code = NULL, 
+                    email_verification_expires = NULL,
+                    updated_at = :updated_at
+                WHERE email = :email
+            """),
+            {
+                "email": verification_data.email,
+                "updated_at": datetime.utcnow()
+            }
+        )
+        await db.commit()
+        
+        # Create access token
+        access_token = create_access_token(data={"sub": user_data.email})
+        
+        return {
+            "message": "Email verified successfully",
+            "token": access_token,
+            "user": {
+                "id": str(user_data.id),
+                "email": user_data.email,
+                "firstName": user_data.first_name,
+                "lastName": user_data.last_name,
+                "role": user_data.role,
+                "emailVerified": True
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Email verification error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/auth/resend-verification")
+async def resend_verification(resend_data: ResendVerificationRequest, db: AsyncSession = Depends(get_db)):
+    """Resend verification email"""
+    try:
+        # Find user by email
+        result = await db.execute(
+            text("SELECT * FROM users WHERE email = :email"),
+            {"email": resend_data.email}
+        )
+        user_data = result.fetchone()
+        
+        if not user_data:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found"
+            )
+        
+        if user_data.email_verified:
+            raise HTTPException(
+                status_code=400,
+                detail="Email already verified"
+            )
+        
+        # Generate new verification code
+        verification_code = ''.join(secrets.choice('0123456789') for _ in range(6))
+        verification_expires = datetime.utcnow() + timedelta(minutes=10)
+        
+        # Update user with new verification code
+        await db.execute(
+            text("""
+                UPDATE users 
+                SET email_verification_code = :code, 
+                    email_verification_expires = :expires,
+                    updated_at = :updated_at
+                WHERE email = :email
+            """),
+            {
+                "email": resend_data.email,
+                "code": verification_code,
+                "expires": verification_expires,
+                "updated_at": datetime.utcnow()
+            }
+        )
+        await db.commit()
+        
+        # Send new verification email
+        try:
+            await send_verification_email(resend_data.email, verification_code, user_data.first_name)
+        except Exception as email_error:
+            print(f"Email sending error: {email_error}")
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to send verification email"
+            )
+        
+        return {
+            "message": "Verification code sent successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Resend verification error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/auth/verify")
@@ -138,7 +294,8 @@ async def verify_token(current_user: User = Depends(get_current_user)):
             "email": current_user.email,
             "firstName": current_user.first_name,
             "lastName": current_user.last_name,
-            "role": current_user.role
+            "role": current_user.role,
+            "emailVerified": current_user.email_verified
         }
     }
 

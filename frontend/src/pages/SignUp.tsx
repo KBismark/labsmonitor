@@ -35,14 +35,19 @@ const SignUp = () => {
 
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      await signup({
+      const result = await signup({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
         password: data.password
       });
-      navigate('/dashboard');
-    } catch (error) {
+      
+      if (result.requiresVerification) {
+        navigate(`/verify-email?email=${encodeURIComponent(result.email)}`);
+      } else {
+        navigate('/dashboard');
+      }
+    } catch {
       // Error handled in AuthContext
     }
   };
@@ -65,7 +70,7 @@ const SignUp = () => {
           <div>
             <Link to="/" className="flex items-center">
               <Heart className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-2xl font-bold text-gray-900">MedTest Pro</span>
+              <span className="ml-2 text-2xl font-bold text-gray-900">Labs Monitor</span>
             </Link>
             <h2 className="mt-6 text-3xl font-bold text-gray-900">
               Create your account

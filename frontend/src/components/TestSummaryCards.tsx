@@ -4,10 +4,7 @@ import {
   Heart, 
   Activity, 
   Droplets, 
-  Brain,
-  TrendingUp,
-  TrendingDown,
-  Minus
+  Brain
 } from 'lucide-react';
 
 const TestSummaryCards = () => {
@@ -54,17 +51,6 @@ const TestSummaryCards = () => {
     }
   ];
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up':
-        return <TrendingUp className="h-4 w-4 text-green-500" />;
-      case 'down':
-        return <TrendingDown className="h-4 w-4 text-red-500" />;
-      default:
-        return <Minus className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'normal':
@@ -86,7 +72,7 @@ const TestSummaryCards = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
-          className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+          className="bg-white cursor-pointer rounded-lg overflow-hidden shadow-gray-300 hover:shadow-lg transition-shadow duration-300"
         >
           {/* Header with gradient background */}
           <div className={`bg-gradient-to-r ${item.bgGradient} p-4 text-white`}>
@@ -95,7 +81,7 @@ const TestSummaryCards = () => {
                 <item.icon className="h-6 w-6" />
                 <h3 className="font-semibold">{item.title}</h3>
               </div>
-              {getTrendIcon(item.trend)}
+              {/* {getTrendIcon(item.trend)} */}
             </div>
           </div>
 
@@ -121,9 +107,9 @@ const TestSummaryCards = () => {
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
                 {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
               </span>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                View Details
-              </button>
+              <span className="text-blue-600 text-xs font-medium">
+                Latest test
+              </span>
             </div>
           </div>
         </motion.div>

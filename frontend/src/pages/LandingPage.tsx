@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
@@ -11,7 +10,6 @@ import {
   ChevronRight,
   Heart,
   Stethoscope,
-  User
 } from 'lucide-react';
 
 const LandingPage = () => {
@@ -23,7 +21,7 @@ const LandingPage = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Heart className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">MedTest Pro</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">Labs Monitor</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link 
@@ -259,7 +257,7 @@ const LandingPage = () => {
               Ready to Take Control of Your Health?
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of users who are already managing their medical tests with MedTest Pro
+              Join thousands of users who are already managing their medical tests with Labs Monitor
             </p>
             <Link 
               to="/signup" 
@@ -273,13 +271,21 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <Footer />
+    </div>
+  );
+};
+
+
+export const Footer = () => {
+  return (
+    <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
                 <Heart className="h-8 w-8 text-blue-400" />
-                <span className="ml-2 text-xl font-bold">MedTest Pro</span>
+                <span className="ml-2 text-xl font-bold">Labs Monitor</span>
               </div>
               <p className="text-gray-400">
                 Professional medical test management platform for patients, doctors, and healthcare providers.
@@ -306,19 +312,19 @@ const LandingPage = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Contact</h3>
               <ul className="space-y-2 text-gray-400">
-                <li>support@medtestpro.com</li>
-                <li>+1 (555) 123-4567</li>
-                <li>123 Medical St, Health City</li>
+                <li>support@labsmonitor.com</li>
+                <li>+233 (555) 123-4567</li>
+                <li>Health City, Accra - Ghana</li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 MedTest Pro. All rights reserved.</p>
+            <p>&copy; 2024 Labs Monitor. All rights reserved.</p>
           </div>
         </div>
       </footer>
-    </div>
   );
 };
+
 
 export default LandingPage;

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,7 +30,7 @@ const SignIn = () => {
     try {
       await login(data.email, data.password);
       navigate('/dashboard');
-    } catch (error) {
+    } catch{
       // Error handled in AuthContext
     }
   };
@@ -44,7 +43,7 @@ const SignIn = () => {
           <div>
             <Link to="/" className="flex items-center">
               <Heart className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-2xl font-bold text-gray-900">MedTest Pro</span>
+              <span className="ml-2 text-2xl font-bold text-gray-900">Labs Monitor</span>
             </Link>
             <h2 className="mt-6 text-3xl font-bold text-gray-900">
               Sign in to your account

@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Plus, Save, X, Calendar } from 'lucide-react';
+import { useState } from 'react';
+import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface TestRecord {
@@ -15,7 +14,6 @@ interface TestRecord {
 const AddTestRecord = () => {
   const [selectedPanel, setSelectedPanel] = useState('');
   const [testRecords, setTestRecords] = useState<TestRecord[]>([]);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   const testPanels = {
     'CBC': ['RBC', 'HB', 'PLATELETS', 'WBC'],
@@ -143,7 +141,7 @@ const AddTestRecord = () => {
       toast.success('Test records saved successfully!');
       setTestRecords([]);
       setSelectedPanel('');
-    } catch (error) {
+    } catch{
       toast.error('Failed to save test records');
     }
   };
@@ -175,35 +173,7 @@ const AddTestRecord = () => {
         </select>
       </div>
 
-      {/* Add Test Button */}
-      <div className="flex justify-between items-center">
-        <button
-          onClick={addTestRow}
-          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add Test Record</span>
-        </button>
-
-        {testRecords.length > 0 && (
-          <div className="flex space-x-2">
-            <button
-              onClick={saveRecords}
-              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Save className="h-4 w-4" />
-              <span>Save Records</span>
-            </button>
-            <button
-              onClick={cancelRecords}
-              className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              <X className="h-4 w-4" />
-              <span>Cancel</span>
-            </button>
-          </div>
-        )}
-      </div>
+      
 
       {/* Test Records Table */}
       {testRecords.length > 0 && (
@@ -298,7 +268,7 @@ const AddTestRecord = () => {
                         onClick={() => removeTestRow(index)}
                         className="text-red-600 hover:text-red-800 transition-colors"
                       >
-                        <X className="h-4 w-4" />
+                        Remove
                       </button>
                     </td>
                   </tr>
@@ -308,6 +278,36 @@ const AddTestRecord = () => {
           </div>
         </div>
       )}
+
+      {/* Add Test Button */}
+      <div className="flex justify-between items-center">
+        <button
+          onClick={addTestRow}
+          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <span className='sm:block hidden'>Add Test Record</span>
+          <span className='sm:hidden'>Add</span>
+        </button>
+
+        {testRecords.length > 0 && (
+          <div className="flex space-x-2">
+            <button
+              onClick={saveRecords}
+              className="flex items-center space-x-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+            >
+              <span className='sm:block hidden'>Save Records</span>
+              <span className='sm:hidden'>Save</span>
+            </button>
+            <button
+              onClick={cancelRecords}
+              className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              <X className="h-4 w-4" />
+              <span>Cancel</span>
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Instructions */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

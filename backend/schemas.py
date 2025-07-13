@@ -19,10 +19,18 @@ class UserResponse(UserBase):
     id: UUID
     role: str
     isActive: bool
+    emailVerified: bool
     createdAt: datetime
     
     class Config:
         orm_mode = True
+
+class EmailVerificationRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
 
 class TestRecordBase(BaseModel):
     testType: str

@@ -8,6 +8,7 @@ interface User {
   role: 'patient' | 'doctor' | 'admin';
   firstName: string;
   lastName: string;
+  emailVerified: boolean;
 }
 
 interface AuthContextType {
@@ -18,7 +19,7 @@ interface AuthContextType {
     password: string;
     firstName: string;
     lastName: string;
-  }) => Promise<void>;
+  }) => Promise<{ requiresVerification: boolean; email: string }>;
   logout: () => void;
   loading: boolean;
 }
@@ -89,15 +90,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }) => {
     try {
       const response = await axios.post('/api/auth/register', userData);
-      const { token, user } = response.data;
+      const { requiresVerification, email } = response.data;
       
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser(user);
-      
-      toast.success('Account created successfully!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      if (requiresVerification) {
+        toast.success('Registration successful! Please check your email for verification code.');
+        return { requiresVerification, email };
+      } else {
+        // Handle case where verification is not required (backward compatibility)
+        const { token, user } = response.data;
+        localStorage.setItem('token', token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        setUser(user);
+        toast.success('Account created successfully!');
+        return { requiresVerification: false, email };
+      }
+    } catch (error: unknown) {
+      const errorMessage = (error as any)?.response?.data?.detail || 'Registration failed';
+      toast.error(errorMessage);
       throw error;
     }
   };

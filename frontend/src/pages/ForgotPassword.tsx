@@ -29,7 +29,7 @@ const ForgotPassword = () => {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       setIsSubmitted(true);
       toast.success('Password reset email sent!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to send reset email');
     }
   };
@@ -42,7 +42,7 @@ const ForgotPassword = () => {
           <div>
             <Link to="/" className="flex items-center">
               <Heart className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-2xl font-bold text-gray-900">MedTest Pro</span>
+              <span className="ml-2 text-2xl font-bold text-gray-900">Labs Monitor</span>
             </Link>
             <h2 className="mt-6 text-3xl font-bold text-gray-900">
               Forgot your password?

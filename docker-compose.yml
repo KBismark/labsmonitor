@@ -24,6 +24,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    env_file:
+      - ./backend/.env
     environment:
       - DATABASE_URL=postgresql+asyncpg://medtest:password@db:5432/medtest
       - SECRET_KEY=your-secret-key-here

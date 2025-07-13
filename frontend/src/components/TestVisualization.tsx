@@ -230,7 +230,7 @@ const TestVisualization: React.FC<TestVisualizationProps> = ({ showFilters = fal
       )}
 
       {/* Chart */}
-      <div className="bg-white rounded-lg">
+      <div className="bg-transparent rounded-lg">
         {renderChart()}
       </div>
 
