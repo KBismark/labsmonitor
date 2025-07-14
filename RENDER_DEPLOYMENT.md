@@ -8,14 +8,14 @@ This guide will help you deploy your Medical Test Records Application on Render.
 
 #### **Frontend Service (Web Service)**
 - **Name**: `labsmonitor-frontend`
-- **Dockerfile Path**: `./frontend/Dockerfile.render`
+- **Dockerfile Path**: `Dockerfile.render`
 - **Branch**: `main`
 - **Root Directory**: `frontend`
 - **Environment**: `Docker`
 
 #### **Backend Service (Web Service)**
 - **Name**: `labsmonitor-backend`
-- **Dockerfile Path**: `./backend/Dockerfile.render`
+- **Dockerfile Path**: `Dockerfile.render`
 - **Branch**: `main`
 - **Root Directory**: `backend`
 - **Environment**: `Docker`
@@ -110,8 +110,8 @@ async def health_check():
 ### **Step 1: Prepare Your Repository**
 1. Ensure your code is pushed to GitHub/GitLab
 2. Make sure all Dockerfiles are in the correct locations:
-   - `./frontend/Dockerfile.render` (production-ready for Render)
-   - `./backend/Dockerfile.render` (production-ready for Render)
+   - `frontend/Dockerfile.render` (production-ready for Render)
+   - `backend/Dockerfile.render` (production-ready for Render)
 
 ### **Step 2: Create Render Account**
 1. Go to [render.com](https://render.com)
@@ -131,7 +131,7 @@ async def health_check():
 1. Click "New +" → "Web Service"
 2. **Connect your repository**
 3. **Name**: `labsmonitor-backend`
-4. **Dockerfile Path**: `./backend/Dockerfile.render`
+4. **Dockerfile Path**: `Dockerfile.render`
 5. **Branch**: `main`
 6. **Root Directory**: `backend`
 7. **Environment**: `Docker`
@@ -159,7 +159,7 @@ ALLOWED_ORIGINS=https://your-frontend-service-name.onrender.com
 1. Click "New +" → "Web Service"
 2. **Connect your repository**
 3. **Name**: `labsmonitor-frontend`
-4. **Dockerfile Path**: `./frontend/Dockerfile.render`
+4. **Dockerfile Path**: `Dockerfile.render`
 5. **Branch**: `main`
 6. **Root Directory**: `frontend`
 7. **Environment**: `Docker`
