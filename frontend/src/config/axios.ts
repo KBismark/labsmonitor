@@ -3,10 +3,6 @@ import axios from 'axios';
 // Configure axios base URL with debugging
 const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-// Debug logging (remove in production)
-console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('Using baseURL:', baseURL);
-
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL,
