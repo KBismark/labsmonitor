@@ -153,6 +153,10 @@ SMTP_PASSWORD=your-app-password
 ALLOWED_ORIGINS=https://your-frontend-service-name.onrender.com
 ```
 
+**Important**: 
+- Replace the `DATABASE_URL` with the Internal Database URL from your PostgreSQL service
+- The application will automatically convert `postgresql://` to `postgresql+asyncpg://` if needed
+
 **Important**: Replace the `DATABASE_URL` with the Internal Database URL from your PostgreSQL service.
 
 ### **Step 5: Create Frontend Service**
