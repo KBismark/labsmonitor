@@ -177,7 +177,9 @@ NODE_ENV=production
 VITE_API_URL=https://your-backend-service-name.onrender.com
 ```
 
-**Important**: Replace `your-backend-service-name` with the actual name of your backend service (e.g., `labsmonitor-backend`)
+**Important**: 
+- Replace `your-backend-service-name` with the actual name of your backend service (e.g., `labsmonitor-backend`)
+- The `VITE_API_URL` must be set as a **build-time environment variable** for Vite to inject it into the client-side code
 
 **Important**: Replace `your-backend-service-name` with the actual name of your backend service.
 
@@ -236,6 +238,14 @@ curl https://your-backend-service-name.onrender.com/docs
 1. Check the build logs in Render dashboard
 2. Verify all dependencies are in `package.json` and `requirements.txt`
 3. Ensure Dockerfiles are in the correct locations
+
+### **Issue 5: Frontend API URL Not Working**
+**Symptoms**: Frontend still uses localhost URLs, API calls fail
+**Solution**:
+1. Ensure `VITE_API_URL` is set in frontend environment variables
+2. Check browser console for the debug logs showing the actual baseURL
+3. Verify the backend service URL is correct and accessible
+4. Make sure the environment variable is set before the build process
 
 ## 🔒 **Security Best Practices**
 
