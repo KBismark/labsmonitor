@@ -177,6 +177,8 @@ NODE_ENV=production
 VITE_API_URL=https://your-backend-service-name.onrender.com
 ```
 
+**Important**: Replace `your-backend-service-name` with the actual name of your backend service (e.g., `labsmonitor-backend`)
+
 **Important**: Replace `your-backend-service-name` with the actual name of your backend service.
 
 ## 🔍 **Verification Steps**

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Configure axios base URL for HTTPS
-const baseURL = import.meta.env.VITE_API_URL || 'https://localhost:8443';
+// Configure axios base URL
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -41,7 +41,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Try to refresh the token
-          const response = await axios.post(`${baseURL}/api/auth/refresh`, {
+          const response = await api.post('/api/auth/refresh', {
             refresh_token: refreshToken
           });
 
