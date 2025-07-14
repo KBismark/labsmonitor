@@ -1,78 +1,12 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import TestResultVisualCard from "../components/TestResultVisualCard";
 import Modal from "../components/Modal";
 import TestSelectionModal from "../components/TestSelectionModal";
-
-const TestGroups = [
-    {
-        category: "Blood Tests",
-        tests: [
-            {
-                name: "Hemoglobin",
-                unit: "g/dL",
-                id: "hemoglobin"
-            },
-            {
-                name: "Hematocrit",
-                unit: "%",
-                id: "hematocrit"
-            },
-
-            
-        ]
-    },
-    {
-        category: "Urine Tests",
-        tests: [
-            {
-                name: "Glucose",
-                unit: "mg/dL",
-                id: "glucose"
-            },
-            {
-                name: "Protein",
-                unit: "mg/dL",
-                id: "protein"
-            }  
-        ]
-    },
-    {
-        category: "Liver Function Tests",
-        tests: [
-            {
-                name: "Alanine Aminotransferase",
-                unit: "U/L",
-                id: "alanineAminotransferase"
-            },
-            {
-                name: "Aspartate Aminotransferase",
-                unit: "U/L",
-                id: "aspartateAminotransferase"
-            }
-        ]
-    },
-    {
-        category: "Kidney Function Tests",
-        tests: [
-            {
-                name: "Creatinine",
-                unit: "mg/dL",
-                id: "creatinine"
-            },
-            {
-                name: "BUN",
-                unit: "mg/dL",
-                id: "bun"
-            }
-        ]
-    }
-]
-
-
-
+import { StoryBlokContext } from "../contexts/StoryBlokContext";
 
 
 export const TestResultsVisualizationPage = () => {
+    const { story } = useContext(StoryBlokContext);
     type SelectedTest = {
         category: string;
         test: {
@@ -130,7 +64,7 @@ export const TestResultsVisualizationPage = () => {
                     title="Select Tests"
                 >
                     <TestSelectionModal
-                        testGroups={TestGroups}
+                        testGroups={story!}
                         onTestSelect={handleTestSelect}
                         onTestRemove={handleTestRemove}
                         selectedTests={selectedTests}

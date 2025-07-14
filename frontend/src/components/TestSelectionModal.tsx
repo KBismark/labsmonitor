@@ -48,7 +48,7 @@ export default function TestSelectionModal({
                         onClick={() => setSelectedCategory(
                             selectedCategory === group.category ? null : group.category
                         )}
-                        className={`px-2 py-1 text-sm font-medium rounded-lg transition-colors duration-200 capitalize ${
+                        className={`px-2 py-2 text-xs font-medium rounded-lg transition-colors duration-200 capitalize ${
                             selectedCategory === group.category
                                 ? 'bg-blue-500 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

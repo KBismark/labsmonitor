@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../config/axios';
+import { StoryBlokContext } from '../contexts/StoryBlokContext';
 
 // Type definitions for error handling
 interface ValidationError {
@@ -34,93 +35,89 @@ interface TestRecord {
   maxRange?: number;
 }
 
+// const getTestUnit = (testName: string) => {
+//   const units: { [key: string]: string } = {
+//     'RBC': 'million/μL',
+//     'HB': 'g/dL',
+//     'PLATELETS': 'thousand/μL',
+//     'WBC': 'thousand/μL',
+//     'POTASSIUM': 'mEq/L',
+//     'UREA': 'mg/dL',
+//     'CREATININE': 'mg/dL',
+//     'eGFR': 'mL/min/1.73m²',
+//     'ALT': 'U/L',
+//     'AST': 'U/L',
+//     'ALP': 'U/L',
+//     'GGT': 'U/L',
+//     'T-BIL': 'mg/dL',
+//     'D-BIL': 'mg/dL',
+//     'TOTAL PROTEIN': 'g/dL',
+//     'ALBUMIN': 'g/dL',
+//     'T. CHOL': 'mg/dL',
+//     'HDL': 'mg/dL',
+//     'LDL': 'mg/dL',
+//     'TRIG': 'mg/dL',
+//     'NON-HDL CHOL': 'mg/dL',
+//     'GLUCOSE': 'mg/dL',
+//     'HBA1C': '%',
+//     'INSULIN': 'μIU/mL',
+//     'LACTATE': 'mmol/L',
+//     'IRON': 'μg/dL',
+//     'TRANSFERRI': 'mg/dL',
+//     'FERRITIN': 'ng/mL',
+//     'IRON SATURATION': '%',
+//     'PROTEIN': 'g/dL',
+//     'LDH': 'U/L',
+//     'CPK': 'U/L',
+//     'CKMB': 'ng/mL',
+//     'T. I': 'ng/mL',
+//     'T. T': 'ng/mL',
+//     'TSH': 'μIU/mL',
+//     'T3': 'ng/dL',
+//     'T4': 'μg/dL',
+//     'BLOOD': 'cells/hpf',
+//     'BACTERIA': 'per hpf',
+//     'SG': '',
+//     'FSH': 'mIU/mL',
+//     'LH': 'mIU/mL',
+//     'PROLACTIN': 'ng/mL',
+//     'ESTROGEN': 'pg/mL',
+//     'PROGESTERONE': 'ng/mL',
+//     'AMH': 'ng/mL',
+//     'TESTOSTERONE': 'ng/dL',
+//     'SODIUM': 'mEq/L',
+//     'CHLORIDE': 'mEq/L',
+//     'Sperm concentration': 'million/mL',
+//     'Motility': '%',
+//     'Sperm count': 'million',
+//     'Viability': '%',
+//     'Albumin': 'mg/g',
+//     'Ratio': '',
+//     'URINE CREATININE': 'mg/dL',
+//     'URINE PROTEIN': 'mg/dL'
+//   };
+//   return units[testName] || '';
+// };
+
 const AddTestRecord = () => {
+  const { story } = useContext(StoryBlokContext);
   const [selectedPanel, setSelectedPanel] = useState('');
   const [testRecords, setTestRecords] = useState<TestRecord[]>([]);
 
-  const testPanels = {
-    'CBC': ['RBC', 'HB', 'PLATELETS', 'WBC'],
-    'KFT': ['POTASSIUM', 'UREA', 'CREATININE', 'eGFR'],
-    'LFT': ['ALT', 'AST', 'ALP', 'GGT', 'T-BIL', 'D-BIL', 'TOTAL PROTEIN', 'ALBUMIN'],
-    'LIPID': ['T. CHOL', 'HDL', 'LDL', 'TRIG', 'NON-HDL CHOL'],
-    'GLUCOSE': ['GLUCOSE', 'HBA1C', 'INSULIN', 'LACTATE'],
-    'IRON': ['IRON', 'TRANSFERRI', 'FERRITIN', 'IRON SATURATION'],
-    'FLUID': ['PROTEIN', 'GLUCOSE', 'LDH'],
-    'CARDIAC': ['CPK', 'AST', 'LDH', 'CKMB'],
-    'TROPININS': ['T. I', 'T. T'],
-    'THYROID': ['TSH', 'T3', 'T4'],
-    'URINE': ['PROTEIN', 'BLOOD', 'BACTERIA', 'SG', 'GLUCOSE'],
-    'FERTILITY': ['FSH', 'LH', 'PROLACTIN', 'ESTROGEN', 'PROGESTERONE', 'AMH', 'TESTOSTERONE'],
-    'ELECTROLYTES': ['SODIUM', 'POTASSIUM', 'CHLORIDE'],
-    'SEMEN': ['Sperm concentration', 'Motility', 'Sperm count', 'Viability'],
-    'ACR': ['Albumin', 'Creatinine', 'Ratio'],
-    'URINE_PROTEIN': ['URINE CREATININE', 'URINE PROTEIN', 'RATIO']
-  };
+  const testPanels = useMemo(() => {
+    return story!.reduce((acc, panel) => {
+      acc[panel.category] = panel.tests.map((test) => test.name);
+      return acc;
+    }, {} as Record<string, string[]>);
+  }, [story]);
 
-  const getTestUnit = (testName: string) => {
-    const units: { [key: string]: string } = {
-      'RBC': 'million/μL',
-      'HB': 'g/dL',
-      'PLATELETS': 'thousand/μL',
-      'WBC': 'thousand/μL',
-      'POTASSIUM': 'mEq/L',
-      'UREA': 'mg/dL',
-      'CREATININE': 'mg/dL',
-      'eGFR': 'mL/min/1.73m²',
-      'ALT': 'U/L',
-      'AST': 'U/L',
-      'ALP': 'U/L',
-      'GGT': 'U/L',
-      'T-BIL': 'mg/dL',
-      'D-BIL': 'mg/dL',
-      'TOTAL PROTEIN': 'g/dL',
-      'ALBUMIN': 'g/dL',
-      'T. CHOL': 'mg/dL',
-      'HDL': 'mg/dL',
-      'LDL': 'mg/dL',
-      'TRIG': 'mg/dL',
-      'NON-HDL CHOL': 'mg/dL',
-      'GLUCOSE': 'mg/dL',
-      'HBA1C': '%',
-      'INSULIN': 'μIU/mL',
-      'LACTATE': 'mmol/L',
-      'IRON': 'μg/dL',
-      'TRANSFERRI': 'mg/dL',
-      'FERRITIN': 'ng/mL',
-      'IRON SATURATION': '%',
-      'PROTEIN': 'g/dL',
-      'LDH': 'U/L',
-      'CPK': 'U/L',
-      'CKMB': 'ng/mL',
-      'T. I': 'ng/mL',
-      'T. T': 'ng/mL',
-      'TSH': 'μIU/mL',
-      'T3': 'ng/dL',
-      'T4': 'μg/dL',
-      'BLOOD': 'cells/hpf',
-      'BACTERIA': 'per hpf',
-      'SG': '',
-      'FSH': 'mIU/mL',
-      'LH': 'mIU/mL',
-      'PROLACTIN': 'ng/mL',
-      'ESTROGEN': 'pg/mL',
-      'PROGESTERONE': 'ng/mL',
-      'AMH': 'ng/mL',
-      'TESTOSTERONE': 'ng/dL',
-      'SODIUM': 'mEq/L',
-      'CHLORIDE': 'mEq/L',
-      'Sperm concentration': 'million/mL',
-      'Motility': '%',
-      'Sperm count': 'million',
-      'Viability': '%',
-      'Albumin': 'mg/g',
-      'Ratio': '',
-      'URINE CREATININE': 'mg/dL',
-      'URINE PROTEIN': 'mg/dL'
-    };
-    return units[testName] || '';
-  };
+  const getTestUnit = useCallback((testName: string) => {
+    return story!.find((panel) => panel.tests.some((test) => test.name === testName))?.tests.find((test) => test.name === testName)?.unit || '';
+  }, [story]);
 
+
+  
+  
   const addTestRow = () => {
     if (!selectedPanel) {
       toast.error('Please select a test panel first');

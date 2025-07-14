@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Heart, 
@@ -7,7 +7,6 @@ import {
   User, 
   LogOut,
   Activity,
-  TrendingUp,
   Download
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,10 +15,12 @@ import TestVisualization from '../components/TestVisualization';
 import AddTestRecord from '../components/AddTestRecord';
 import { Footer } from './LandingPage';
 import { TestResultsVisualizationPage } from './TestResultsVisualizationPage';
+import { StoryBlokContext } from '../contexts/StoryBlokContext';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  const { story } = useContext(StoryBlokContext);
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -40,7 +41,7 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+              <div className="items-center space-x-2 hidden md:flex">
                 <User className="h-5 w-5 text-gray-400" />
                 <span className="text-sm font-medium text-gray-700">
                   {user?.firstName} {user?.lastName}
@@ -121,30 +122,43 @@ const Dashboard = () => {
             </div>
           )}
 
-          {activeTab === 'tests' && (
-            <TestResultsVisualizationPage />
-          )}
+          {
+            !story && (
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+              </div>
+            )
+          }
 
-          {activeTab === 'trends' && (
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Health Trends</h2>
-              </div>
-              <div className="p-6">
-                <TestVisualization showTrends={true} />
-              </div>
-            </div>
-          )}
+          {story && (
+            <>
+              {activeTab === 'tests' && (
+                <TestResultsVisualizationPage />
+              )}
 
-          {activeTab === 'add' && (
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Add New Test Record</h2>
-              </div>
-              <div className="p-6">
-                <AddTestRecord />
-              </div>
-            </div>
+              {activeTab === 'trends' && (
+                <div className="bg-white rounded-lg shadow">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">Health Trends</h2>
+                  </div>
+                  <div className="p-6">
+                    <TestVisualization showTrends={true} />
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'add' && (
+                <div className="bg-white rounded-lg shadow">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">Add New Test Record</h2>
+                  </div>
+                  <div className="p-6">
+                    <AddTestRecord />
+                  </div>
+                </div>
+              )}
+
+            </>
           )}
         </motion.div>
       </div>
