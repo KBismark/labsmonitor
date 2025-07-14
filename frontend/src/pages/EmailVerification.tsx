@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Mail, ArrowLeft, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/axios';
 import toast from 'react-hot-toast';
 
 
@@ -57,16 +57,16 @@ const EmailVerification = () => {
     }
 
     try {
-      const response = await axios.post('/api/auth/verify-email', {
+      const response = await api.post('/api/auth/verify-email', {
         email: email,
         code: data.code
       });
 
-      const { token } = response.data;
+      const { access_token, refresh_token } = response.data;
       
-      // Store token
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // Store tokens
+      localStorage.setItem('access_token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
       
       toast.success('Email verified successfully!');
       navigate('/dashboard');
@@ -88,7 +88,7 @@ const EmailVerification = () => {
 
     setIsResending(true);
     try {
-      await axios.post('/api/auth/resend-verification', { email });
+      await api.post('/api/auth/resend-verification', { email });
       toast.success('Verification code sent successfully!');
       setCountdown(60); // 60 second cooldown
     } catch (error: unknown) {

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Heart, Mail, ArrowLeft } from 'lucide-react';
+import api from '../config/axios';
 import toast from 'react-hot-toast';
 
 const forgotPasswordSchema = z.object({
@@ -14,6 +15,7 @@ type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 const ForgotPassword = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -25,12 +27,15 @@ const ForgotPassword = () => {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
-      // TODO: Implement forgot password API call
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      await api.post('/api/auth/forgot-password', { email: data.email });
       setIsSubmitted(true);
       toast.success('Password reset email sent!');
-    } catch {
-      toast.error('Failed to send reset email');
+      // Redirect to reset password page after a short delay
+      setTimeout(() => {
+        navigate(`/reset-password?email=${encodeURIComponent(data.email)}`);
+      }, 2000);
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Failed to send reset email');
     }
   };
 

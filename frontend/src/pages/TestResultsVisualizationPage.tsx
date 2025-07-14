@@ -108,16 +108,7 @@ export const TestResultsVisualizationPage = () => {
     return (
         <>
             {
-                selectedTests.map((group) => (
-                    <section key={`${group.category}-${group.test.id}`} className="bg-[#111827] mb-12">
-                        <div className="px-6 py-4 border-b border-gray-200 bg-white">
-                            <h2 className="text-lg font-semibold text-gray-900">{group.test.name}</h2>
-                        </div>
-                        <div className="pb-6 pt-3">
-                            <TestResultVisualCard />
-                        </div>
-                    </section>
-                ))
+                selectedTests.map((group) => (<TestResultVisualCard key={`${group.category}-${group.test.id}`} testData={group} /> ))
             }
             <div className="bg-[#141b2b] rounded-lg">
                 <div className="px-6 py-4 border-b border-gray-200 bg-white">

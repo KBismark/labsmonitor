@@ -1,11 +1,34 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import api from '../config/axios';
+
+// Type definitions for error handling
+interface ValidationError {
+  type: string;
+  loc: string[];
+  msg: string;
+  input: unknown;
+  ctx: Record<string, unknown>;
+  url: string;
+}
+
+interface ApiErrorResponse {
+  detail: string | ValidationError[];
+}
+
+interface ApiError {
+  response?: {
+    data?: ApiErrorResponse;
+    status?: number;
+  };
+  message?: string;
+}
 
 interface TestRecord {
   date: string;
   testType: string;
-  value: number;
+  value: number | undefined;
   unit: string;
   minRange?: number;
   maxRange?: number;
@@ -107,7 +130,7 @@ const AddTestRecord = () => {
     const newRecord: TestRecord = {
       date: new Date().toISOString().split('T')[0],
       testType: testPanels[selectedPanel as keyof typeof testPanels][0],
-      value: 0,
+      value: undefined, // Will be validated before saving
       unit: getTestUnit(testPanels[selectedPanel as keyof typeof testPanels][0])
     };
 
@@ -118,31 +141,138 @@ const AddTestRecord = () => {
     setTestRecords(testRecords.filter((_, i) => i !== index));
   };
 
-  const updateTestRecord = (index: number, field: keyof TestRecord, value: any) => {
+  const updateTestRecord = (index: number, field: keyof TestRecord, value: string | number | undefined) => {
     const updated = [...testRecords];
     updated[index] = { ...updated[index], [field]: value };
     
     if (field === 'testType') {
-      updated[index].unit = getTestUnit(value);
+      updated[index].unit = getTestUnit(value as string);
     }
     
     setTestRecords(updated);
   };
 
+  // Frontend validation function
+  const validateTestRecords = (records: TestRecord[], category: string): string[] => {
+    const errors: string[] = [];
+
+    if (!category) {
+      errors.push('Please select a test panel');
+    }
+
+    if (records.length === 0) {
+      errors.push('Please add at least one test record');
+      return errors;
+    }
+
+    records.forEach((record, index) => {
+      // Validate date
+      if (!record.date) {
+        errors.push(`Record ${index + 1}: Date is required`);
+      } else {
+        const testDate = new Date(record.date);
+        const today = new Date();
+        if (testDate > today) {
+          errors.push(`Record ${index + 1}: Test date cannot be in the future`);
+        }
+      }
+
+      // Validate test type
+      if (!record.testType) {
+        errors.push(`Record ${index + 1}: Test type is required`);
+      }
+
+      // Validate test value
+      if (record.value === null || record.value === undefined || isNaN(record.value) || record.value === 0) {
+        errors.push(`Record ${index + 1}: Test value is required and must be a positive number`);
+      } else if (record.value < 0) {
+        errors.push(`Record ${index + 1}: Test value cannot be negative`);
+      }
+
+      // Validate unit
+      if (!record.unit) {
+        errors.push(`Record ${index + 1}: Unit is required`);
+      }
+
+      // Validate ranges (if provided)
+      if (record.minRange !== undefined && record.maxRange !== undefined) {
+        if (record.minRange >= record.maxRange) {
+          errors.push(`Record ${index + 1}: Minimum range must be less than maximum range`);
+        }
+      }
+
+      // Note: Test values can be outside reference ranges - this is normal and expected
+      // Reference ranges are for comparison and flagging abnormal values, not restriction
+    });
+
+    return errors;
+  };
+
   const saveRecords = async () => {
-    if (testRecords.length === 0) {
-      toast.error('Please add at least one test record');
+    // Frontend validation
+    const validationErrors = validateTestRecords(testRecords, selectedPanel);
+    
+    if (validationErrors.length > 0) {
+      // Show first few errors to avoid overwhelming the user
+      const errorsToShow = validationErrors.slice(0, 3);
+      errorsToShow.forEach(error => toast.error(error));
+      
+      if (validationErrors.length > 3) {
+        toast.error(`And ${validationErrors.length - 3} more validation errors. Please fix all issues before saving.`);
+      }
       return;
     }
 
     try {
-      // TODO: Implement API call to save records
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      // Transform test records to match API schema
+      const recordsToSave = testRecords.map(record => ({
+        testCategory: selectedPanel,
+        testType: record.testType,
+        testValue: record.value ? Number(record.value) : 0, // This will be caught by validation
+        unit: record.unit,
+        minRange: record.minRange !== undefined ? Number(record.minRange) : null,
+        maxRange: record.maxRange !== undefined ? Number(record.maxRange) : null,
+        testDate: new Date(record.date).toISOString(),
+        notes: null
+      }));
+
+      // Call the bulk API endpoint
+      await api.post('/api/test-records/bulk', {
+        records: recordsToSave
+      });
+
       toast.success('Test records saved successfully!');
       setTestRecords([]);
       setSelectedPanel('');
-    } catch{
-      toast.error('Failed to save test records');
+    } catch (error: unknown) {
+      console.error('Error saving test records:', error);
+      
+      // Handle different types of error responses
+      let errorMessage = 'Failed to save test records';
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const apiError = error as ApiError;
+        const response = apiError.response;
+        
+        if (response?.data) {
+          const { detail } = response.data;
+          
+          // Handle Pydantic validation errors
+          if (Array.isArray(detail)) {
+            // Multiple validation errors
+            const validationErrors = detail.map((err: ValidationError) => err.msg).join(', ');
+            errorMessage = `Validation errors: ${validationErrors}`;
+          } else if (typeof detail === 'string') {
+            // Single error message
+            errorMessage = detail;
+          } else if (detail) {
+            // Other error format
+            errorMessage = JSON.stringify(detail);
+          }
+        }
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
@@ -235,9 +365,20 @@ const AddTestRecord = () => {
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
                         value={record.value}
-                        onChange={(e) => updateTestRecord(index, 'value', parseFloat(e.target.value))}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (!isNaN(value) && value > 0) {
+                            updateTestRecord(index, 'value', value);
+                          } else if (e.target.value === '') {
+                            // Allow empty input for clearing
+                            updateTestRecord(index, 'value', 0);
+                          }
+                        }}
                         className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
+                        placeholder="Value"
+                        title="Test value (must be positive)"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -247,20 +388,34 @@ const AddTestRecord = () => {
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
                         value={record.minRange || ''}
-                        onChange={(e) => updateTestRecord(index, 'minRange', parseFloat(e.target.value))}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (!isNaN(value) && value >= 0) {
+                            updateTestRecord(index, 'minRange', value);
+                          }
+                        }}
                         className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
                         placeholder="Min"
+                        title="Minimum reference range"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
                         value={record.maxRange || ''}
-                        onChange={(e) => updateTestRecord(index, 'maxRange', parseFloat(e.target.value))}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (!isNaN(value) && value >= 0) {
+                            updateTestRecord(index, 'maxRange', value);
+                          }
+                        }}
                         className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-20"
                         placeholder="Max"
+                        title="Maximum reference range"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

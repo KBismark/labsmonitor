@@ -10,7 +10,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=https://localhost:8443
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -23,7 +23,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8000:8000"  # HTTP (for compatibility)
+      - "8443:8443"  # HTTPS
     env_file:
       - ./backend/.env
     environment:

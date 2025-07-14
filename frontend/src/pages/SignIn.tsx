@@ -8,7 +8,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 const signInSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  rememberMe: z.boolean().optional()
 });
 
 type SignInFormData = z.infer<typeof signInSchema>;
@@ -28,7 +29,7 @@ const SignIn = () => {
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      await login(data.email, data.password);
+      await login(data.email, data.password, data.rememberMe || false);
       navigate('/dashboard');
     } catch{
       // Error handled in AuthContext
@@ -112,6 +113,7 @@ const SignIn = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input
+                    {...register('rememberMe')}
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
