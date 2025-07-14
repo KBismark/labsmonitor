@@ -187,6 +187,9 @@ VITE_API_URL=https://your-backend-service-name.onrender.com
 # Test health endpoint
 curl https://your-backend-service-name.onrender.com/health
 
+# Test root endpoint
+curl https://your-backend-service-name.onrender.com/
+
 # Test API documentation
 curl https://your-backend-service-name.onrender.com/docs
 ```

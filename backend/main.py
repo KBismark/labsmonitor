@@ -47,6 +47,10 @@ security = HTTPBearer()
 async def root():
     return {"message": "Medical Test Records API"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": datetime.utcnow()}
+
 # Authentication endpoints
 @app.post("/api/auth/register")
 async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
