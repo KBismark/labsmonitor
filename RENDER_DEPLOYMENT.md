@@ -247,6 +247,14 @@ curl https://your-backend-service-name.onrender.com/docs
 3. Verify the backend service URL is correct and accessible
 4. Make sure the environment variable is set before the build process
 
+### **Issue 6: CORS Errors**
+**Symptoms**: "Access to XMLHttpRequest has been blocked by CORS policy" errors
+**Solution**:
+1. Ensure `ALLOWED_ORIGINS` is set in backend environment variables
+2. Include your frontend URL: `https://your-frontend-service-name.onrender.com`
+3. Verify the backend service is running and accessible
+4. Check that the CORS configuration is properly applied
+
 ## 🔒 **Security Best Practices**
 
 ### **Environment Variables**
