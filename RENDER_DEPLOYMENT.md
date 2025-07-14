@@ -10,14 +10,14 @@ This guide will help you deploy your Medical Test Records Application on Render.
 - **Name**: `labsmonitor-frontend`
 - **Dockerfile Path**: `./frontend/Dockerfile.render`
 - **Branch**: `main`
-- **Root Directory**: Leave empty (default)
+- **Root Directory**: `frontend`
 - **Environment**: `Docker`
 
 #### **Backend Service (Web Service)**
 - **Name**: `labsmonitor-backend`
 - **Dockerfile Path**: `./backend/Dockerfile.render`
 - **Branch**: `main`
-- **Root Directory**: Leave empty (default)
+- **Root Directory**: `backend`
 - **Environment**: `Docker`
 
 #### **Database Service (PostgreSQL)**
@@ -133,7 +133,7 @@ async def health_check():
 3. **Name**: `labsmonitor-backend`
 4. **Dockerfile Path**: `./backend/Dockerfile.render`
 5. **Branch**: `main`
-6. **Root Directory**: Leave empty
+6. **Root Directory**: `backend`
 7. **Environment**: `Docker`
 8. **Region**: Same as database
 9. **Plan**: Free (or paid for production)
@@ -161,7 +161,7 @@ ALLOWED_ORIGINS=https://your-frontend-service-name.onrender.com
 3. **Name**: `labsmonitor-frontend`
 4. **Dockerfile Path**: `./frontend/Dockerfile.render`
 5. **Branch**: `main`
-6. **Root Directory**: Leave empty
+6. **Root Directory**: `frontend`
 7. **Environment**: `Docker`
 8. **Region**: Same as other services
 9. **Plan**: Free (or paid for production)
