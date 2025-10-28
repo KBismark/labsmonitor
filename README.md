@@ -2,7 +2,7 @@
 
 A full-stack web application for managing and visualizing medical test records with secure authentication and real-time data visualization.
 
-## 🏗️ Architecture
+## Architecture
 
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS
 - **Backend**: FastAPI + Python + SQLAlchemy
@@ -11,7 +11,7 @@ A full-stack web application for managing and visualizing medical test records w
 - **Email**: SMTP for verification and password reset
 - **Containerization**: Docker + Docker Compose
 
-## 🚀 Quick Start (Development)
+## Quick Start (Development)
 
 ### Prerequisites
 - Docker and Docker Compose
@@ -41,7 +41,7 @@ A full-stack web application for managing and visualizing medical test records w
    docker-compose down
    ```
 
-## 🏭 Production Deployment
+## Production Deployment
 
 ### Prerequisites
 - Docker and Docker Compose installed on production server
@@ -177,7 +177,7 @@ openssl req -x509 -newkey rsa:4096 -keyout ssl/key.pem -out ssl/cert.pem -days 3
    docker-compose -f docker-compose.prod.yml exec -T db pg_dump -U $DB_USER $DB_NAME > backup_$(date +%Y%m%d_%H%M%S).sql
    ```
 
-## 🔧 Configuration Options
+## Configuration Options
 
 ### Frontend Configuration
 - **Environment Variables**: Set in `frontend/.env.production`
@@ -196,7 +196,7 @@ openssl req -x509 -newkey rsa:4096 -keyout ssl/key.pem -out ssl/cert.pem -days 3
 - **Compression**: Gzip compression enabled
 - **Security Headers**: XSS protection, frame options, etc.
 
-## 🔒 Security Considerations
+## Security Considerations
 
 ### Production Security Checklist
 - [ ] Use strong, unique passwords for all services
@@ -219,7 +219,7 @@ echo ".env.prod" >> .gitignore
 # Consider using Docker Secrets or HashiCorp Vault
 ```
 
-## 📊 Monitoring and Maintenance
+## Monitoring and Maintenance
 
 ### Health Checks
 ```bash
@@ -254,7 +254,7 @@ docker-compose -f docker-compose.prod.yml up -d --build
 docker-compose -f docker-compose.prod.yml exec backend python -m alembic upgrade head
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -290,13 +290,13 @@ docker-compose -f docker-compose.prod.yml exec backend python -m alembic upgrade
    # Optimize container resources in docker-compose.prod.yml
    ```
 
-## 📝 API Documentation
+## API Documentation
 
 Once deployed, access the interactive API documentation at:
 - Swagger UI: https://yourdomain.com/docs
 - ReDoc: https://yourdomain.com/redoc
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -304,11 +304,11 @@ Once deployed, access the interactive API documentation at:
 4. Add tests if applicable
 5. Submit a pull request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+## Support
 
 For support and questions:
 - Create an issue in the repository
