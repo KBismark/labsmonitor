@@ -317,4 +317,4 @@ For support and questions:
 
 ---
 
-**Note**: This is a medical application. Ensure compliance with relevant healthcare regulations (HIPAA, GDPR, etc.) before deploying in production environments.
+**Note**: This is a medical application started with [Bolt.new](https://bolt.new). Ensure compliance with relevant healthcare regulations (HIPAA, GDPR, etc.) before deploying in production environments.
